@@ -27,8 +27,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public ApiResponseDTO<Map<String, String>> createTask(Long userId, TaskEntity task) {
+        LOGGER.info("Creating task");
         if (!userId.equals(task.getUserId())) {
-            LOGGER.error("You cannot update this task as logged in userId and task userId must be the same");
+            LOGGER.error("You cannot create this task as logged in userId and task userId must be the same");
             return ResponseBuilder.error(
                     "TASK_CREATION_FAILURE",
                     "You cannot create this task.");
@@ -38,6 +39,7 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(TaskStatusEnum.TODO);
             taskRepository.save(task);
 
+            LOGGER.info("Task created successfully.");
             return ResponseBuilder.success(
                     "TASK_CREATION_SUCCESS",
                     "Task created successfully for " + user.getUserId(),
@@ -48,11 +50,13 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskEntity> getAllTasks() {
+        LOGGER.info("Fetching all tasks.");
         return taskRepository.findAll();
     }
 
     @Override
     public TaskEntity getTask(Long id) {
+        LOGGER.info("Fetching task by id: {}", id);
         return taskRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
     }
@@ -60,6 +64,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskEntity updateTask(Long id, TaskEntity updatedTask) {
         // TODO: User authentication needs to be implemented
+        LOGGER.info("Updating task");
         TaskEntity existing = getTask(id);
 
         existing.setTitle(updatedTask.getTitle());
@@ -73,6 +78,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public void deleteTask(Long id) {
         // TODO: User authentication needs to be implemented
+        LOGGER.info("Deleting task by id: {}", id);
         taskRepository.deleteById(id);
     }
 }
