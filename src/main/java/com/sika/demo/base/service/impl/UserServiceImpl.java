@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ApiResponseDTO<Map<String, String>> register(RegisterRequest request) {
+        LOGGER.info("Creating User");
         Optional<UserEntity> existingUser = userRepository.findByEmail(request.getEmail());
         if (existingUser.isPresent()) {
             LOGGER.error("Email already registered: {}", request.getEmail());
@@ -60,6 +61,7 @@ public class UserServiceImpl implements UserService {
                     .build();
             userRepository.save(user);
 
+            LOGGER.info("User created successfully.");
             return ResponseBuilder.success(
                     "USER_REGISTRATION_SUCCESS",
                     "Registration successful.",
@@ -70,23 +72,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserEntity> getAllUsers() {
+        LOGGER.info("Fetching all users");
         return userRepository.findAll();
     }
 
     @Override
     public UserEntity getUserById(Long id) {
+        LOGGER.info("Fetch user by id: {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     @Override
     public List<UserEntity> searchUsers(String name) {
+        LOGGER.info("Fetch user by name: {}", name);
         return userRepository
                 .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name);
     }
 
     @Override
     public ApiResponseDTO<Map<String, String>> updateUser(Long id, UserEntity updatedUser) {
+        LOGGER.info("Updating user by id: {}", id);
         if (!id.equals(updatedUser.getUserId())) {
             LOGGER.error("You cannot update this user as path ID and body userId must be the same");
             return ResponseBuilder.error(
@@ -100,6 +106,7 @@ public class UserServiceImpl implements UserService {
             existing.setDateOfBirth(updatedUser.getDateOfBirth());
             userRepository.save(existing);
 
+            LOGGER.info("User updated successfully");
             return ResponseBuilder.success(
                     "USER_UPDATE_SUCCESS",
                     "User Updated successfully for " + existing.getEmail(),
@@ -111,12 +118,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) {
         // TODO: User authentication needs to be implemented
+        LOGGER.info("Deleting user.");
         userRepository.deleteById(id);
     }
 
 
     @Override
     public AuthResponse login(AuthRequest req, HttpServletResponse res) {
+        LOGGER.info("Logging in.");
         Optional<UserEntity> existingUser = userRepository.findByEmail(req.getEmail());
         LOGGER.info(String.valueOf(existingUser));
 
@@ -138,6 +147,7 @@ public class UserServiceImpl implements UserService {
             String accessToken = jwtUtil.generateToken(user);
 
             LOGGER.info("accessToken: {}", accessToken);
+            LOGGER.info("Login successful.");
             return new AuthResponse(accessToken);
         }
     }
