@@ -1,13 +1,14 @@
 package com.sika.demo.base.controller;
 
 import com.sika.demo.base.entity.TaskEntity;
+import com.sika.demo.base.model.ApiResponseDTO;
 import com.sika.demo.base.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -17,10 +18,9 @@ public class TaskController {
 
     private final TaskService taskService;
 
-    @PostMapping
-    public TaskEntity create(@RequestBody TaskEntity task, Authentication auth) {
-        log.info(auth.getName());
-        return taskService.createTask(task, auth.getName());
+    @PostMapping("/{userId}")
+    public ApiResponseDTO<Map<String, String>> create(@RequestBody TaskEntity task, @PathVariable Long userId) {
+        return taskService.createTask(userId, task);
     }
 
     @GetMapping

@@ -15,84 +15,35 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     protected final Logger LOGGER = LoggerFactory.getLogger(TaskServiceImpl.class);
 
-
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
-
-//    public ApiResponseDTO<Map<String, String>> updateUser(Long id, UserEntity updatedUser) {
-//        if (!id.equals(updatedUser.getUserId())) {
-//            LOGGER.error("You cannot update this user as path ID and body userId must be the same");
-//            return ResponseBuilder.error(
-//                    "USER_UPDATE_FAILURE",
-//                    "You cannot update this user.");
-//        } else {
-//            UserEntity existing = getUserById(id);
-//
-//            existing.setFirstName(updatedUser.getFirstName());
-//            existing.setLastName(updatedUser.getLastName());
-//            existing.setDateOfBirth(updatedUser.getDateOfBirth());
-//            userRepository.save(existing);
-//
-//            return ResponseBuilder.success(
-//                    "USER_UPDATE_SUCCESS",
-//                    "User Updated successfully for " + existing.getEmail(),
-//                    Map.of("email", existing.getEmail())
-//            );
-//        }
-//    }
-
-
-
-//    @Override
-//    public TaskEntity createTask(TaskEntity task, String authenticatedEmail) {
-//        UserEntity user = userRepository.findByEmail(authenticatedEmail)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        task.setUserId(user.getUserId());
-//        task.setStatus(TaskStatusEnum.TODO);
-//
-////        return taskRepository.save(task);
-//
-//
-//        if (!task.getId().equals(updatedUser.getUserId())) {
-//            LOGGER.error("You cannot update this user as path ID and body userId must be the same");
-//            return ResponseBuilder.error(
-//                    "USER_UPDATE_FAILURE",
-//                    "You cannot update this user.");
-//        } else {
-//            UserEntity existing = getUserById(id);
-//
-//            existing.setFirstName(updatedUser.getFirstName());
-//            existing.setLastName(updatedUser.getLastName());
-//            existing.setDateOfBirth(updatedUser.getDateOfBirth());
-//            taskRepository.save(task);
-//
-//            return ResponseBuilder.success(
-//                    "USER_UPDATE_SUCCESS",
-//                    "User Updated successfully for " + existing.getEmail(),
-//                    Map.of("email", existing.getEmail())
-//            );
-//        }
-//    }
-
-
-
     @Override
-    public TaskEntity createTask(TaskEntity task, String authenticatedEmail) {
-        UserEntity user = userRepository.findByEmail(authenticatedEmail)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public ApiResponseDTO<Map<String, String>> createTask(Long userId, TaskEntity task) {
+        if (!userId.equals(task.getUserId())) {
+            LOGGER.error("You cannot update this task as logged in userId and task userId must be the same");
+            return ResponseBuilder.error(
+                    "TASK_CREATION_FAILURE",
+                    "You cannot create this task.");
+        } else {
+            UserEntity user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+            task.setUserId(user.getUserId());
+            task.setStatus(TaskStatusEnum.TODO);
+            taskRepository.save(task);
 
-        task.setUserId(user.getUserId());
-        task.setStatus(TaskStatusEnum.TODO);
-
-        return taskRepository.save(task);
+            return ResponseBuilder.success(
+                    "TASK_CREATION_SUCCESS",
+                    "Task created successfully for " + user.getUserId(),
+                    Map.of("task", task.getTitle())
+            );
+        }
     }
 
     @Override
@@ -108,6 +59,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskEntity updateTask(Long id, TaskEntity updatedTask) {
+        // TODO: User authentication needs to be implemented
         TaskEntity existing = getTask(id);
 
         existing.setTitle(updatedTask.getTitle());
@@ -120,6 +72,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void deleteTask(Long id) {
+        // TODO: User authentication needs to be implemented
         taskRepository.deleteById(id);
     }
 }

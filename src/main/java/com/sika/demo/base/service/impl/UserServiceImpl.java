@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.sika.demo.base.utils.PasswordUtil.hash;
+import static com.sika.demo.base.utils.PasswordUtil.verify;
 
 @Service
 @RequiredArgsConstructor
@@ -109,6 +110,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long id) {
+        // TODO: User authentication needs to be implemented
         userRepository.deleteById(id);
     }
 
@@ -119,9 +121,12 @@ public class UserServiceImpl implements UserService {
         LOGGER.info(String.valueOf(existingUser));
 
         if (existingUser.isEmpty()) {
-            LOGGER.error("User does not exist. Sign up to continue");
-            throw  new ApiException("USER_NOT_FOUND", "User does not exist. Sign up to continue", 404);
-        }  else {
+            LOGGER.error("User does not exist. Create new user");
+            throw  new ApiException("USER_NOT_FOUND", "User does not exist. Create new user.", 404);
+        }  else if (!verify(existingUser.get().getPassword(), req.getPassword())) {
+            LOGGER.error("Invalid credentials");
+            throw new ApiException("INVALID_CREDENTIALS", "Invalid password", 401);
+        } else {
             UserEntity entity = existingUser.get();
             UserDetails user = new org.springframework.security.core.userdetails.User(
                     entity.getEmail(),
