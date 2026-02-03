@@ -1,12 +1,14 @@
 package com.sika.demo.base.service;
 
 import com.sika.demo.base.entity.TaskEntity;
+import com.sika.demo.base.model.ApiResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 public interface TaskService {
 
-    TaskEntity createTask(TaskEntity task, String authenticatedEmail);
+    ApiResponseDTO<Map<String, String>> createTask(Long userId, TaskEntity task);
 
     TaskEntity getTask(Long id);
 

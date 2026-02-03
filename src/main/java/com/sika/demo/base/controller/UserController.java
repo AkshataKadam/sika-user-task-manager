@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-//import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +26,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public UserEntity create(@RequestBody UserEntity user) {
-        return userService.createUser(user);
-    }
-
-    @PostMapping("/register")
+    @PostMapping("/create")
     public ApiResponseDTO<Map<String, String>> register(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
@@ -68,13 +62,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("#id == #user.userId and #id == authentication.principal.id")
+    @PreAuthorize("#id == authentication.principal.id")
     public ApiResponseDTO<Map<String, String>> update(@PathVariable Long id, @RequestBody UserEntity user) {
         return userService.updateUser(id, user);
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("#id == authentication.principal.id and #id == #user.userId")
+    @PreAuthorize("#id == authentication.principal.id")
     public void delete(@PathVariable Long id) {
         userService.deleteUser(id);
     }
